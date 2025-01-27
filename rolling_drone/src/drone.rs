@@ -233,17 +233,20 @@ impl RollingDrone {
                 return;
             }else {
                 self.already_visited.insert((flood.initiator_id, flood.flood_id));
-                flood.path_trace.push((self.id, NodeType::Drone));
-                let new_packet = Packet{
-                    pack_type : PacketType::FloodRequest(flood.clone()),
-                    routing_header: packet.routing_header,
-                    session_id: packet.session_id,
-                };
-                let (previous, _) = flood.path_trace[flood.path_trace.len() - 2];
-                for (idd, neighbour) in self.packet_send.clone() {
-                    if idd == previous {
-                    } else {
-                        neighbour.send(new_packet.clone()).unwrap();
+                if self.packet_send.len()==1{
+                    self.forward_packet(self.create_flood_response(packet.session_id,flood));
+                }else {
+                    flood.path_trace.push((self.id, NodeType::Drone));
+                    let new_packet = Packet {
+                        pack_type: PacketType::FloodRequest(flood.clone()),
+                        routing_header: packet.routing_header,
+                        session_id: packet.session_id,
+                    };
+                    let (previous, _) = flood.path_trace[flood.path_trace.len() - 2];
+                    for (idd, neighbour) in self.packet_send.clone() {
+                        if idd == previous {} else {
+                            neighbour.send(new_packet.clone()).unwrap();
+                        }
                     }
                 }
             }
