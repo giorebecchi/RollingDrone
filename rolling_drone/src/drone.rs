@@ -136,8 +136,13 @@ impl RollingDrone {
     }
     fn is_dropped(&self, packet: Packet) ->bool{
         let mut rng=rand::rng();
-        let rand :f32 = (rng.random_range(0.0..=1.0) as f32 * 100.0).round() / 100.0;
-        if rand<=self.pdr{
+        let rand :f32 = (rng.random_range(0.0..=1.0) as f32 * 100.0) / 100.0;
+
+        if self.pdr==0.{
+            return false;
+        }
+
+        if rand<=self.pdr||self.pdr==1.{
             let event = DroneEvent::PacketDropped(packet.clone());
             self.controller_send.send(event).unwrap();
             return true;
